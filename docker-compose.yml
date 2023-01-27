@@ -2,11 +2,8 @@ version: "3.9"
 
 services:
   kong:
+    image: kong-js:dev
     build: .
-    user: "${KONG_USER:-kong}"
-    volumes:
-      - ./plugins:/usr/local/kong/js-plugins
-      - ./config:/etc/kong/declarative
     environment:
       # Use the config defined in config/kong.yml
       KONG_DATABASE: "off"
@@ -22,7 +19,10 @@ services:
       KONG_PLUGINSERVER_JS_START_CMD: /usr/local/bin/kong-js-pluginserver -v --plugins-directory /usr/local/kong/js-plugins
       KONG_PLUGINSERVER_JS_QUERY_CMD: /usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/js-plugins --dump-all-plugins
       # Allow plugins to be used. The plugin name is your JS file name e.g. hello.js
-      KONG_PLUGINS: bundled
+      KONG_PLUGINS: bundled, keycloak-plugin
+      KONG_NGINX_MAIN_ENV: KONG_KEYCLOAK_URL
+      KONG_KEYCLOAK_URL: http://orafnplat:7070
+
     ports:
       - "8000:8000/tcp"
     healthcheck:
@@ -31,3 +31,10 @@ services:
       timeout: 10s
       retries: 10
     restart: on-failure
+
+  receiver:
+    image: tools/receiver:dev
+
+volumes:
+  postgres-volume:
+

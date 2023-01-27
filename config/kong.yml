@@ -3,9 +3,11 @@ _transform: true
 
 services:
   - name: example-service
-    url: https://mockbin.org
+    url: http://172.28.0.4:4000/test
     routes:
       - name: jspath
         paths:
-        - /
-        
+        - /test
+    plugins:
+      - name: keycloak-plugin
+
